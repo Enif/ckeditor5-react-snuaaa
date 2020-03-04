@@ -1,14 +1,87 @@
 import React from 'react';
 import CKEditor from '@ckeditor/ckeditor5-react';
 // import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor';
+import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 
-// import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
-// import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
-// import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
-// import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
+import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor';
+import FileRepository from '@ckeditor/ckeditor5-upload/src/filerepository';
+import Image from '@ckeditor/ckeditor5-image/src/image';
+import imageIcon from '@ckeditor/ckeditor5-core/theme/icons/image.svg';
+import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
+import Table from '@ckeditor/ckeditor5-table/src/table';
+import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+
+import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
+import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
+import Heading from '@ckeditor/ckeditor5-heading/src/heading';
+import TodoList from '@ckeditor/ckeditor5-list/src/todolist';
+import List from '@ckeditor/ckeditor5-list/src/list';
+import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
+import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
+import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
+import Subscript from '@ckeditor/ckeditor5-basic-styles/src/subscript';
+import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
+// import dd from '@ckeditor/ckeditor5-paragraph/src/'
 
 import axios from 'axios';
+
+class InsertImage extends Plugin {
+    init() {
+        const editor = this.editor;
+
+        editor.ui.componentFactory.add('insertImage', locale => {
+            const view = new ButtonView(locale);
+
+            view.set({
+                label: 'Insert image',
+                icon: imageIcon,
+                tooltip: true
+            });
+
+            // Callback executed once the image is clicked.
+            view.on('execute', () => {
+                // const imageURL = prompt('Image URL');
+
+                const input = document.createElement('input');
+
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+                input.onchange = async () => {
+
+                    editor.model.change(writer => {
+                        // const imageElement = writer.createElement('image', {
+                        //     src: imageURL
+                        // });
+
+                        const file = input.files[0];
+                        const formData = new FormData();
+
+                        formData.append('attachedImage', file);
+                        axios.post('http://192.168.123.100:8080/api/image', formData)
+                            .then(res => {
+                                const imageElement = writer.createElement('image', {
+                                    src: `http://192.168.123.100:8080/static/${res.data.imgPath}`
+                                });
+                                editor.model.insertContent(imageElement, editor.model.document.selection);
+
+                            }).catch(response => {
+                                // reject('Upload failed');
+                                alert('upload failed')
+                            });
+
+
+                        // Insert the image in the current selection location.
+                        // editor.model.insertContent(imageElement, editor.model.document.selection);
+                    });
+                }
+                input.click();
+            });
+
+            return view;
+        });
+    }
+}
 
 class MyUploadAdapter {
     constructor(loader) {
@@ -31,7 +104,7 @@ class MyUploadAdapter {
                         //     this.loader.uploaded = data.uploaded;
                         // }
                     }).then(response => {
-                        if (response.data.result == 'success') {
+                        if (response.data.result === 'success') {
                             resolve({
                                 default: response.data.url
                             });
@@ -69,9 +142,19 @@ function MyCustomUploadAdapterPlugin(editor) {
 
 
 const editorConfiguration = {
-    plugins: [ MyCustomUploadAdapterPlugin],
-    // plugins: [ MyCustomUploadAdapterPlugin, Essentials, Bold, Italic, Paragraph ],
-    // toolbar: [ 'bold', 'italic' ]
+    // plugins: [ MyCustomUploadAdapterPlugin],
+    plugins: [Essentials, Heading, Bold, Italic, Paragraph, List, TodoList, Image, InsertImage, ImageCaption, Table, TableToolbar, FileRepository, Strikethrough, Subscript, Underline],
+    extraPlugins: [MyCustomUploadAdapterPlugin],
+    // toolbar: ['bold', 'italic', 'insertImage'],
+    toolbar: ['heading', '|', 'bold', 'italic', 'Strikethrough', 'Subscript', '|', 'link', 'bulletedList', 'numberedList', 'todoList', 'blockQuote', '|',
+        'undo', 'redo', '|',
+        'insertImage', 'insertTable'],
+    image: {
+        toolbar: ['imageStyle:full', 'imageStyle:side', '|', 'imageTextAlternative']
+    },
+    table: {
+        contentToolbar: [ 'tableColumn', 'tableRow', 'mergeTableCells' ]
+    }
 };
 
 
