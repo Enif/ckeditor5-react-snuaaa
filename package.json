@@ -1,5 +1,5 @@
 {
-  "name": "test-ckeditor",
+  "name": "ckeditor5-react-snuaaa",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -17,6 +17,7 @@
     "@ckeditor/ckeditor5-table": "^17.0.0",
     "@ckeditor/ckeditor5-theme-lark": "^17.0.0",
     "@ckeditor/ckeditor5-upload": "^17.0.0",
+    "@svgr/rollup": "^5.2.0",
     "@svgr/webpack": "4.3.3",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.1",
@@ -72,6 +73,11 @@
     "react-dom": "^16.13.0",
     "resolve": "1.15.0",
     "resolve-url-loader": "3.1.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-peer-deps-external": "^2.2.2",
+    "rollup-plugin-postcss": "^2.2.0",
+    "rollup-plugin-url": "^3.0.1",
     "sass-loader": "8.0.2",
     "semver": "6.3.0",
     "style-loader": "^1.1.3",
@@ -87,8 +93,15 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "build:types": "tsc --emitDeclarationOnly"
   },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/ckeditor/ckeditor5-react-snuaaa",
+  "license": "GPL-2.0-or-later",
+  "module": "dist/index.js",
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -158,5 +171,10 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "^4.0.2",
+    "rollup": "^2.0.0",
+    "rollup-plugin-babel": "^4.3.3"
   }
 }
